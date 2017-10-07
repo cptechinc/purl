@@ -60,6 +60,12 @@ abstract class AbstractPart implements \ArrayAccess
     {
         $this->initialize();
         $this->data = $data;
+         foreach ($data as $key => $value) {
+             if (empty($value) && $value !== '0') {
+                 unset($this->data[$key]);
+             }
+         }
+         return $this;
     }
 
     /**
