@@ -379,7 +379,7 @@ class Url extends AbstractPart
     private static function httpBuildUrl(array $parts)
     {
         $relative = self::httpBuildRelativeUrl($parts);
-
+                
         return sprintf('%s://%s%s%s%s',
             $parts['scheme'],
             $parts['user'] ? sprintf('%s%s@', $parts['user'], $parts['pass'] ? sprintf(':%s', $parts['pass']) : '') : '',
@@ -400,7 +400,7 @@ class Url extends AbstractPart
         $parts['path'] = ltrim($parts['path'], '/');
 
         return sprintf('/%s%s%s',
-            $parts['path'] ? $parts['path'] : '',
+            $parts['path'] ? $parts['path'] . '/' : '',
             $parts['query'] ? '?'.$parts['query'] : '',
             $parts['fragment'] ? '#'.$parts['fragment'] : ''
         );

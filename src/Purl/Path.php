@@ -81,6 +81,6 @@ class Path extends AbstractPart
      */
     protected function doInitialize()
     {
-        $this->data = explode('/', $this->path);
+        $this->data = explode('/', rtrim($this->path, '/'));
     }
 }
