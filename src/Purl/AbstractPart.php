@@ -1,64 +1,44 @@
 <?php
 
-/*
- * This file is part of the Purl package, a project by Jonathan H. Wage.
- *
- * (c) 2013 Jonathan H. Wage
- *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
- */
+declare(strict_types=1);
 
 namespace Purl;
+
+use ArrayAccess;
 
 /**
  * AbstractPart class is implemented by each part of a Url where necessary.
  *
- * @author      Jonathan H. Wage <jonwage@gmail.com>
  * @implements ArrayAccess
  */
-abstract class AbstractPart implements \ArrayAccess
+abstract class AbstractPart implements ArrayAccess
 {
-    /**
-     * Flag for whether or not this part has been initialized.
-     *
-     * @var boolean
-     */
+    /** @var bool */
     protected $initialized = false;
 
-    /**
-     * Array of data for this part.
-     *
-     * @var array
-     */
-    protected $data = array();
+    /** @var mixed[] */
+    protected $data = [];
+
+    /** @var string[] */
+    protected $partClassMap = [];
 
     /**
-     * Array mapping part names to classes.
-     *
-     * @var array
+     * @return mixed[]
      */
-    protected $partClassMap = array();
-
-    /**
-     * Gets the data for this part. This method will initialize the part if it is not already initialized.
-     *
-     * @return array
-     */
-    public function getData()
+    public function getData() : array
     {
         $this->initialize();
+
         return $this->data;
     }
 
     /**
-     * Sets the data for this part. This method will initialize the part if it is not already initialized.
-     *
-     * @param array $data
+     * @param mixed[] $data
      */
-    public function setData(array $data)
+    public function setData(array $data) : void
     {
         $this->initialize();
+
         $this->data = $data;
          foreach ($data as $key => $value) {
              if (empty($value) && $value !== '0') {
@@ -68,48 +48,32 @@ abstract class AbstractPart implements \ArrayAccess
          return $this;
     }
 
-    /**
-     * Check if this part has been initialized yet.
-     *
-     * @return boolean
-     */
-    public function isInitialized()
+    public function isInitialized() : bool
     {
         return $this->initialized;
     }
 
-    /**
-     * Check if this part has data by key.
-     *
-     * @param string $key
-     * @return boolean
-     */
-    public function has($key)
+    public function has(string $key) : bool
     {
         $this->initialize();
+
         return isset($this->data[$key]);
     }
 
     /**
-     * Gets data from this part by key.
-     *
-     * @param string $key
-     * @return boolean
+     * @return mixed|null
      */
-    public function get($key)
+    public function get(string $key)
     {
         $this->initialize();
-        return isset($this->data[$key]) ? $this->data[$key] : null;
+
+        return $this->data[$key] ?? null;
     }
 
     /**
-     * Set data for this part by key.
-     *
-     * @param string $key
      * @param mixed $value
-     * @return self
      */
-    public function set($key, $value)
+    public function set(string $key, $value) : AbstractPart
     {
         $this->initialize();
         $this->data[$key] = $value;
@@ -118,11 +82,9 @@ abstract class AbstractPart implements \ArrayAccess
     }
 
     /**
-     * Add data for this part.
-     *
      * @param mixed $value
      */
-    public function add($value)
+    public function add($value) : AbstractPart
     {
         $this->initialize();
         $this->data[] = $value;
@@ -130,61 +92,83 @@ abstract class AbstractPart implements \ArrayAccess
         return $this;
     }
 
-    /**
-     * Remove data from this part by key.
-     */
-    public function remove($key)
+    public function remove(string $key) : AbstractPart
     {
         $this->initialize();
+
         unset($this->data[$key]);
+
+        return $this;
     }
 
-    /** Property Overloading */
-
-    public function __isset($key)
+    public function __isset(string $key) : bool
     {
         return $this->has($key);
     }
 
-    public function __get($key)
+    /**
+     * @return mixed
+     */
+    public function __get(string $key)
     {
         return $this->get($key);
     }
 
-    public function __set($key, $value)
+    /**
+     * @param mixed $value
+     */
+    public function __set(string $key, $value) : AbstractPart
     {
         return $this->set($key, $value);
     }
 
-    public function __unset($key)
+    public function __unset(string $key) : void
     {
-        return $this->remove($key);
+        $this->remove($key);
     }
 
-    /** ArrayAccess */
-
-    public function offsetExists($key)
+    /**
+     * @param mixed $key
+     */
+    public function offsetExists($key) : bool
     {
         $this->initialize();
+
         return isset($this->data[$key]);
     }
 
+    /**
+     * @param mixed $key
+     *
+     * @return mixed
+     */
     public function offsetGet($key)
     {
         return $this->get($key);
     }
 
+    /**
+     * @param mixed $key
+     * @param mixed $value
+     *
+     * @return void
+     */
     public function offsetSet($key, $value)
     {
-        return $this->set($key, $value);
+        $this->set($key, $value);
     }
 
+    /**
+     * @param mixed $key
+     *
+     * @return void
+     */
     public function offsetUnset($key)
     {
-        return $this->remove($key);
+        $this->remove($key);
     }
 
-    protected function initialize()
+    protected function initialize() : void
     {
         if ($this->initialized === true) {
             return;
@@ -196,34 +180,22 @@ abstract class AbstractPart implements \ArrayAccess
     }
 
     /**
-     * Prepare a part value.
-     *
-     * @param string $key
      * @param string|AbstractPart $value
-     * @return AbstractPart $part
+     *
+     * @return mixed
      */
-    protected function preparePartValue($key, $value)
+    protected function preparePartValue(string $key, $value)
     {
-        if (!isset($this->partClassMap[$key])) {
+        if (! isset($this->partClassMap[$key])) {
             return $value;
         }
 
         $className = $this->partClassMap[$key];
 
-        return !$value instanceof $className ? new $className($value) : $value;
+        return ! $value instanceof $className ? new $className($value) : $value;
     }
 
-    /**
-     * Convert the instance back in to string form from the internal parts.
-     *
-     * @return string
-     */
-    abstract public function __toString();
+    abstract public function __toString() : string;
 
-    /**
-     * Each part that extends AbstractPart must implement an doInitialize() method.
-     *
-     * @return void
-     */
-    abstract protected function doInitialize();
+    abstract protected function doInitialize() : void;
 }

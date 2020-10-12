@@ -1,4 +1,7 @@
-vendor
-composer.lock
-data/public-suffix-list.txt
-phpunit.xml
+/data/public-suffix-list.txt
+/phpstan.neon
+/phpunit.xml
+/.phpcs-cache
+/vendor
+/.phpunit.result.cache
+
