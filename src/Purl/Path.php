@@ -54,6 +54,7 @@ class Path extends AbstractPart
 
     protected function doInitialize() : void
     {
+		$this->path = $this->path ? $this->path : '';
         $this->data = explode('/', rtrim($this->path, '/'));
     }
 }
