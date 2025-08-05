@@ -35,11 +35,17 @@ abstract class AbstractPart implements ArrayAccess
     /**
      * @param mixed[] $data
      */
-    public function setData(array $data) : void
+    public function setData(array $data)
     {
         $this->initialize();
 
         $this->data = $data;
+         foreach ($data as $key => $value) {
+             if (empty($value) && $value !== '0') {
+                 unset($this->data[$key]);
+             }
+         }
+         return $this;
     }
 
     public function isInitialized() : bool
@@ -111,7 +117,7 @@ abstract class AbstractPart implements ArrayAccess
     /**
      * @param mixed $value
      */
-    public function __set(string $key, $value) : AbstractPart
+    public function __set(string $key, $value)
     {
         return $this->set($key, $value);
     }
@@ -131,16 +137,19 @@ abstract class AbstractPart implements ArrayAccess
         return isset($this->data[$key]);
     }
 
+    #[\ReturnTypeWillChange]
     /**
+     * 
      * @param mixed $key
-     *
-     * @return mixed
+     * 
+     * @return mixed 
      */
     public function offsetGet($key)
     {
         return $this->get($key);
     }
 
+    #[\ReturnTypeWillChange]
     /**
      * @param mixed $key
      * @param mixed $value
@@ -152,6 +161,7 @@ abstract class AbstractPart implements ArrayAccess
         $this->set($key, $value);
     }
 
+    #[\ReturnTypeWillChange]
     /**
      * @param mixed $key
      *
