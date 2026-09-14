@@ -2,6 +2,8 @@
 /phpstan.neon
 /phpunit.xml
 /.phpcs-cache
+/.php-cs-fixer.php
+/rector.php
 /vendor
 /.phpunit.result.cache
 
