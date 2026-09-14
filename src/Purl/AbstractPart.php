@@ -11,7 +11,7 @@ use ArrayAccess;
  *
  * @implements ArrayAccess
  */
-abstract class AbstractPart implements ArrayAccess
+abstract class AbstractPart implements ArrayAccess, \Stringable
 {
     /** @var bool */
     protected $initialized = false;
@@ -196,7 +196,7 @@ abstract class AbstractPart implements ArrayAccess
 
         $className = $this->partClassMap[$key];
 
-        return ! $value instanceof $className ? new $className($value) : $value;
+        return $value instanceof $className ? $value : new $className($value);
     }
 
     abstract public function __toString() : string;

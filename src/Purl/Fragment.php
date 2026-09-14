@@ -21,15 +21,17 @@ class Fragment extends AbstractPart
     private $fragment;
 
     /** @var mixed[] */
+    #[\Override]
     protected $data = [
         'path'  => null,
         'query' => null,
     ];
 
     /** @var string[] */
+    #[\Override]
     protected $partClassMap = [
-        'path' => 'Purl\Path',
-        'query' => 'Purl\Query',
+        'path' => \Purl\Path::class,
+        'query' => \Purl\Query::class,
     ];
 
     /**
@@ -65,7 +67,7 @@ class Fragment extends AbstractPart
         return sprintf(
             '%s%s',
             (string) $this->path,
-            (string) $this->query !== '' ? '?' . (string) $this->query : ''
+            (string) $this->query !== '' ? '?' . $this->query : ''
         );
     }
 

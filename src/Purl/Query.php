@@ -12,12 +12,11 @@ use function parse_str;
  */
 class Query extends AbstractPart
 {
-    /** @var string|null The original query string. */
-    private $query;
-
-    public function __construct(?string $query = null)
+    public function __construct(
+        /** @var string|null The original query string. */
+        private ?string $query = null
+    )
     {
-        $this->query = $query;
     }
 
     public function getQuery() : string

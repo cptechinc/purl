@@ -14,21 +14,18 @@ use function str_replace;
  */
 class Path extends AbstractPart
 {
-    /** @var string|null The original path string. */
-    private $path;
-
-    public function __construct(?string $path = null)
+    public function __construct(
+        /** @var string|null The original path string. */
+        private ?string $path = null
+    )
     {
-        $this->path = $path;
     }
 
     public function getPath() : string
     {
         $this->initialize();
 
-        return implode('/', array_map(static function ($value) {
-            return str_replace(' ', '%20', $value);
-        }, $this->data));
+        return implode('/', array_map(static fn($value) => str_replace(' ', '%20', $value), $this->data));
     }
 
     public function setPath(string $path) : void

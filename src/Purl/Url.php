@@ -27,13 +27,8 @@ use function strpos;
  */
 class Url extends AbstractPart
 {
-    /** @var string|null The original url string. */
-    private $url;
-
-    /** @var ParserInterface|null */
-    private $parser;
-
     /** @var mixed[] */
+    #[\Override]
     protected $data = [
         'scheme'             => null,
         'host'               => null,
@@ -51,16 +46,19 @@ class Url extends AbstractPart
     ];
 
     /** @var string[] */
+    #[\Override]
     protected $partClassMap = [
-        'path' => 'Purl\Path',
-        'query' => 'Purl\Query',
-        'fragment' => 'Purl\Fragment',
+        'path' => \Purl\Path::class,
+        'query' => \Purl\Query::class,
+        'fragment' => \Purl\Fragment::class,
     ];
 
-    public function __construct(?string $url = null, ?ParserInterface $parser = null)
+    public function __construct(
+        /** @var string|null The original url string. */
+        private ?string $url = null,
+        private ?ParserInterface $parser = null
+    )
     {
-        $this->url    = $url;
-        $this->parser = $parser;
     }
 
     public static function parse(string $url) : Url
@@ -94,7 +92,7 @@ class Url extends AbstractPart
         $url = new self($baseUrl);
 
         if (isset($_SERVER['REQUEST_URI']) && $_SERVER['REQUEST_URI']) {
-            if (strpos($_SERVER['REQUEST_URI'], '?') !== false) {
+            if (str_contains($_SERVER['REQUEST_URI'], '?')) {
                 [$path, $query] = explode('?', $_SERVER['REQUEST_URI'], 2);
             } else {
                 $path  = $_SERVER['REQUEST_URI'];
@@ -127,9 +125,7 @@ class Url extends AbstractPart
 
     public function getParser() : ParserInterface
     {
-        if ($this->parser === null) {
-            $this->parser = self::createDefaultParser();
-        }
+        $this->parser ??= $this->createDefaultParser();
 
         return $this->parser;
     }
@@ -231,13 +227,13 @@ class Url extends AbstractPart
     {
         $this->initialize();
 
-        $parts = array_map('strval', $this->data);
+        $parts = array_map(strval(...), $this->data);
 
         if (! $this->isAbsolute()) {
-            return self::httpBuildRelativeUrl($parts);
+            return $this->httpBuildRelativeUrl($parts);
         }
 
-        return self::httpBuildUrl($parts);
+        return $this->httpBuildUrl($parts);
     }
 
     public function setUrl(string $url) : void
@@ -279,9 +275,9 @@ class Url extends AbstractPart
     /**
      * @param string[] $parts
      */
-    private static function httpBuildUrl(array $parts) : string
+    private function httpBuildUrl(array $parts) : string
     {
-        $relative = self::httpBuildRelativeUrl($parts);
+        $relative = $this->httpBuildRelativeUrl($parts);
 
         $pass = $parts['pass'] !== '' ? sprintf(':%s', $parts['pass']) : '';
         $auth = $parts['user'] !== '' ? sprintf('%s%s@', $parts['user'], $pass) : '';
@@ -300,7 +296,7 @@ class Url extends AbstractPart
     /**
      * @param string[] $parts
      */
-    private static function httpBuildRelativeUrl(array $parts) : string
+    private function httpBuildRelativeUrl(array $parts) : string
     {
         $parts['path'] = ltrim($parts['path'], '/');
 
@@ -312,7 +308,7 @@ class Url extends AbstractPart
         );
     }
 
-    private static function createDefaultParser() : Parser
+    private function createDefaultParser() : Parser
     {
         return new Parser();
     }
